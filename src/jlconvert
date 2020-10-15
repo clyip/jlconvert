@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+// -*- mode: javascript -*-
+
+const outFileName = 'data.xlsx';
+const json2xls = require('json2xls');
+const fs = require('fs');
+const readline = require('readline');
+// const process = require('process');
+
+// const handle = fs.openSync('waset-2018-07-02T04-00-26.jl');
+const rl = readline.createInterface({
+  input: process.stdin,
+  // output: process.stdout
+});
+let count = 0;
+let keys = [];
+let objs = [];
+rl.on('line', (ln) => {
+  count += 1;
+  // console.log(ln);
+  obj = JSON.parse(ln);
+  Object.assign(keys,Object.keys(obj));
+  objs.push(obj);
+})
+rl.on('close', () => {
+  console.log(count);
+  console.log(Object.keys(obj));
+  const xls = json2xls(objs);
+  fs.writeFileSync(outFileName, xls, 'binary');
+  console.log(`${outFileName} written`);
+})
+// const fd = fs.openSync('waset-2018-07-02T04-00-26.jl');
