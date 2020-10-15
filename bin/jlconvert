@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+// -*- mode: javascript -*-
+
+const fs = require('fs');
+const path = require('path');
+const process = require('process');
+const readline = require('readline');
+const stream = require('stream');
+
+const XLSX = require('xlsx');
+
+
+
+if (process.argv.length != 4) {
+  console.log(`Usage: ${path.basename(process.argv[1])} <jl filename> <xlsx filename>`)
+  process.exit(1);
+}
+const jlFilename = process.argv[2];
+const xlsxFilename = process.argv[3];
+const sheetName = path.basename(jlFilename);
+inStream = fs.createReadStream(jlFilename,'latin1');
+const rl = readline.createInterface({
+  input: inStream,
+});
+let count = 0;
+let objs = [];
+rl.on('line', (ln) => {
+  count += 1;
+  let obj = JSON.parse(ln);
+  objs.push(obj);
+})
+rl.on('close', () => {
+  console.log(`Total ${count} lines read.`);
+  workbook = XLSX.utils.book_new();
+  worksheet = XLSX.utils.json_to_sheet(objs);
+  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+  XLSX.writeFileSync(workbook, xlsxFilename);
+  console.log(`${xlsxFilename} written`);
+})
